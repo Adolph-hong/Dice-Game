@@ -34,51 +34,50 @@
 <body>
     <!-- 三個HTML，1.骰色子的按鈕 2.骰出骰子的結果 3.執行1~20的結果 -->
     <button id="rollDice">骰骰子</button>
+    <button id="resetGame">重新開始</button>
     <div class="dice-result"></div>
     <div class="stop-result"></div>
 
     <script>
         // 去抓3個HTML，取值
         const rollDiceButton = document.getElementById('rollDice');
+        const resetButton = document.getElementById('resetGame');
         const diceResultDiv = document.querySelector('.dice-result');
         const stopResultDiv = document.querySelector('.stop-result');
 
 
-        // 對骰骰子的按鈕做點擊事件
+        let rollCount = 0; // 記錄擲骰次數
+        const maxRolls = 20; // 最大擲骰次數
+
         rollDiceButton.addEventListener('click', () => {
-            // 將骰出的骰子結果及執行1~20次結果清空，不然會一直疊加
-            diceResultDiv.innerHTML = '';
-            stopResultDiv.innerHTML = '';
-            // 呼叫函式，將20這個值傳入下面的function
-            rollDice(20);
+            if (rollCount >= maxRolls) return; // 防止超過20次還能按
+
+            rollCount++;
+
+            const dice1 = rollSingleDice();
+            const dice2 = rollSingleDice();
+            const dice3 = rollSingleDice();
+
+            diceResultDiv.innerHTML += `第 ${rollCount} 次：🎲 ${dice1}, 🎲 ${dice2}, 🎲 ${dice3}<br>`;
+
+            if (dice1 === dice2 && dice2 === dice3) {
+                stopResultDiv.innerHTML = `🎉 恭喜! 第 ${rollCount} 次擲骰停止！三顆點數相同：🎲 ${dice1}`;
+                rollDiceButton.disabled = true;
+            }
+
+            if (rollCount === maxRolls && !(dice1 === dice2 && dice2 === dice3)) {
+                stopResultDiv.innerHTML = '🎲 已達 20 次，未出現三顆相同的點數。';
+                rollDiceButton.disabled = true;
+            }
         });
 
-            // 這個function主要用來做計算 名稱設為rollDice(maxrolls) 上面的rollDice(20)
-            // 會傳進來 所以maxRolls=20
-        function rollDice(maxRolls) {
-            // for迴圈，設定i=1執行到小於等於20 然後遞增
-            for (let i = 1; i <= maxRolls; i++) {
-                
-                // 將剛剛下面亂數做出的結果，用三個骰子接住結果
-                const dice1 = rollSingleDice();
-                const dice2 = rollSingleDice();
-                const dice3 = rollSingleDice();
-                
-                // 這是骰子的顯示結果
-                diceResultDiv.innerHTML += `第 ${i} 次：🎲 ${dice1}, 🎲 ${dice2}, 🎲 ${dice3}<br>`;
-
-                // 有兩個條件，一個是三個骰子點數相同就...
-                // 另一個是執行20次都還沒骰到相同點數的就...
-                if (dice1 === dice2 && dice2 === dice3) {
-                    stopResultDiv.innerHTML = `🎉 第 ${i} 次擲骰停止！三顆點數相同：🎲 ${dice1}`;
-                    break;
-                }
-
-                if (i === maxRolls) {
-                    stopResultDiv.innerHTML = '🎲 已達 20 次，未出現三顆相同的點數。';
-                }
-            }
-        }
+        // 重新開始的處理
+        resetButton.addEventListener('click', () => {
+            rollCount = 0;
+            diceResultDiv.innerHTML = '';
+            stopResultDiv.innerHTML = '';
+            rollDiceButton.disabled = false;
+        });
 
         // 將骰子設亂數，使他結果為1~6點
         function rollSingleDice() {
@@ -88,10 +87,3 @@
 </body>
 
 </html>
-
-<!-- 
-1. html 三個 >骰色子、骰子結果、執行1~20次結果
-2. 抓出三個html > 給骰骰子點擊事件 >點下去清空前後顯示結果 然後運算擲骰子結果
-3. 設定三顆骰子+設定骰子隨機投擲1~6(亂數) 然後丟進迴圈(計算結果)
-4. 計算結果迴圈> 迴圈20次 如果遇到d1=d2=d3 > 跳出結束遊戲 如果骰20次都沒有就告知20次都沒有相同點數
--->
